@@ -452,23 +452,6 @@ sub check ($self, %params) {
   return $TRUE;
 }
 
-=method has_priv(%params)
-
-Not entirely sure why this exists.
-
-@PARAMS: %params
-  (
-    user => string,
-    priv => string,
-  )
-
-=cut
-sub has_priv ($self, %params) {
-  return $FALSE unless exists $params{user} or $params{priv};
-
-  return $TRUE;
-}
-
 =method is_role(%args)
 
 This method is used to determine if a given user is a member of a given role.
