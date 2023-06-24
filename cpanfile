@@ -1,0 +1,12 @@
+requires 'Const::Fast';
+requires 'Exception::Class';
+requires 'File::ShareDir';
+requires 'File::ShareDir::Install';
+requires 'Modern::Perl';
+requires 'Moose';
+requires 'Net::LDAP';
+requires 'String::Random';
+requires 'Syntax::Keyword::Try';
+requires 'Test::Class';
+requires 'Test::More';
+requires 'User::pwent';
