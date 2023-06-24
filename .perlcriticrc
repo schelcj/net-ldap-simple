@@ -1,0 +1,36 @@
+# Default Policy list: https://metacpan.org/pod/distribution/Perl-Critic/lib/Perl/Critic/PolicySummary.pod
+# Another breakdown:   https://perlmaven.com/perl-critic
+#
+[-Miscellanea::ProhibitUnrestrictedNoCritic]
+
+[-ValuesAndExpressions::RequireConstantVersion]
+[ValuesAndExpressions::ProhibitLongChainsOfMethodCalls]
+max_chain_length = 5
+
+[-CodeLayout::ProhibitParensWithBuiltins]
+
+# TODO: [01/05/2020 schelcj] - maybe enale this policy
+[-CodeLayout::RequireTidyCode]
+
+[-RegularExpressions::RequireExtendedFormatting]
+[-RegularExpressions::RequireDotMatchAnything]
+[-RegularExpressions::RequireLineBoundaryMatching]
+[-RegularExpressions::ProhibitEscapedMetacharacters]
+
+[-InputOutput::RequireCheckedSyscalls]
+
+[TestingAndDebugging::RequireUseStrict]
+equivalent_modules = Modern::Perl
+
+[TestingAndDebugging::RequireUseWarnings]
+equivalent_modules = Modern::Perl
+
+[Subroutines::ProhibitUnusedPrivateSubroutines]
+private_name_regex = _(?!build|trigger)\w+
+
+[-ControlStructures::ProhibitUnlessBlocks]
+[-ControlStructures::ProhibitPostfixControls]
+
+[-Subroutines::ProhibitSubroutinePrototypes]
+
+[-Modules::RequireVersionVar]
