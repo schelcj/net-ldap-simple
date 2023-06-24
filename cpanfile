@@ -3,7 +3,7 @@ requires 'Exception::Class';
 requires 'File::ShareDir';
 requires 'File::ShareDir::Install';
 requires 'Modern::Perl';
-requires 'Moose';
+requires 'Moo';
 requires 'Net::LDAP';
 requires 'String::Random';
 requires 'Syntax::Keyword::Try';

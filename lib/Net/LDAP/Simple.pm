@@ -21,19 +21,20 @@ package Net::LDAP::Simple;
 
 =cut
 
-use Modern::Perl '2015';
-use English qw(-no_match_vars);
-use Moose;
-use Net::LDAP;
-use File::ShareDir 'dist_file';
-use Const::Fast;
-use Syntax::Keyword::Try;
-use Carp;
+use Moo;
 
+use Carp;
+use Const::Fast;
+use English qw(-no_match_vars);
+use File::ShareDir 'dist_file';
+use Net::LDAP;
 use Net::LDAP::Simple::Exceptions;
 use Net::LDAP::Simple::User;
+use Syntax::Keyword::Try;
 
+use Modern::Perl '2015';
 use experimental qw(signatures);
+no warnings qw(experimental::signatures);
 
 const my $TRUE              => 1;
 const my $FALSE             => 0;
@@ -517,8 +518,5 @@ sub get_user ($self, %params) {
   my $entry = $self->lookup_user(%params);
   return Net::LDAP::Simple::User->new(ldap_entry => $entry);
 }
-
-no Moose;
-__PACKAGE__->meta->make_immutable;
 
 1;

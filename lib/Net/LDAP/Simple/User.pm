@@ -12,10 +12,11 @@ package Net::LDAP::Simple::User;
 
 =cut
 
-use Modern::Perl '2015';
-use Moose;
+use Moo;
 
+use Modern::Perl '2015';
 use experimental qw(signatures);
+no warnings qw(experimental::signatures);
 
 =method new(%params)
 
@@ -102,8 +103,5 @@ sub _build_email($self) {
 sub _build_username($self) {
   return $self->ldap_entry->get_value('sAMAccountName');
 }
-
-no Moose;
-__PACKAGE__->meta->make_immutable;
 
 1;

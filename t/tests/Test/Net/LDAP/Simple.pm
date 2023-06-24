@@ -4,13 +4,16 @@ use base 'Test::Class';
 
 use Const::Fast;
 use FindBin;
-use Modern::Perl;
 use User::pwent;
 use String::Random qw(random_string);
 
 use Test::More;
 
 use Net::LDAP::Simple;
+
+use Modern::Perl '2015';
+use experimental qw(signatures);
+no warnings qw(experimental::signatures);
 
 BEGIN {
   $File::ShareDir::DIST_SHARE{'Net-LDAP-Simple'} = "$FindBin::Bin/../share";
