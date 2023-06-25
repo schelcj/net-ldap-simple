@@ -20,17 +20,17 @@ package Net::LDAP::Simple;
 
 
 =cut
-
-use Moo;
-
 use Carp;
 use Const::Fast;
 use English qw(-no_match_vars);
 use File::ShareDir 'dist_file';
+use Moo;
 use Net::LDAP;
 use Net::LDAP::Simple::Exceptions;
 use Net::LDAP::Simple::User;
 use Syntax::Keyword::Try;
+use Types::Standard qw(ArrayRef HashRef InstanceOf Str);
+use namespace::autoclean;
 
 use Modern::Perl '2015';
 use experimental qw(signatures);
@@ -126,117 +126,83 @@ Defaults loaded from a config packaged with this module.
   Default: sub
 
 =back
-
-=method has_role($role)
-
-Has the role been defined. Returns true or false.
-
-@PARAMS: $role
-
-=method get_role($role)
-
-Fetch the defined role value.
-
-@PARAMS: $role
-
-=method add_role(%params)
-
-Added a new role to the object. 
-
-@PARAMS: %params
-
-  (
-    role => listref,
-  )
-
-=method roles()
-
-Returns all the defined roles.
-
 =cut
 has '_roles' => (
-  traits  => ['Hash'],
-  is      => 'ro',
-  isa     => 'HashRef[ArrayRef]',
+  is      => 'rwp',
+  isa     => HashRef[ArrayRef],
   default => sub {{}},
-  handles => {
-    has_role => 'exists',
-    get_role => 'get',
-    add_role => 'set',
-    roles    => 'keys',
-  }
 );
 
 has '_role_map' => (
   is      => 'ro',
-  isa     => 'HashRef',
+  isa     => HashRef,
   lazy    => 1,
   builder => '_build__role_map',
 );
 
 has '_file' => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build__file',
 );
 
 has '_conf' => (
   is      => 'ro',
-  isa     => 'HashRef',
+  isa     => HashRef,
   lazy    => 1,
   builder => '_build__conf',
 );
 
 has 'host' => (
   is       => 'ro',
-  isa      => 'Str',
+  isa      => Str,
   required => 1,
 );
 
 has 'user_basedn' => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_user_basedn',
 );
 
 has 'binddn' => (
   is       => 'ro',
-  isa      => 'Str',
+  isa      => Str,
   required => 1,
 );
 
 has 'bindpw' => (
   is       => 'ro',
-  isa      => 'Str',
+  isa      => Str,
   required => 1,
 );
 
 has 'user_scope' => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_user_scope',
 );
 
 has 'role_scope' => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_role_scope',
 );
 
 has 'role_field' => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_role_field',
 );
 
 has 'conn' => (
   is      => 'ro',
-  isa     => 'Net::LDAP',
+  isa     => InstanceOf['Net::LDAP'],
   lazy    => 1,
   builder => '_build_conn',
   clearer => 'clear_conn',
@@ -350,6 +316,51 @@ BIND: {
   }
 
   return $conn;
+}
+
+=method has_role($role)
+
+Has the role been defined. Returns true or false.
+
+@PARAMS: $role
+
+=cut
+sub has_role($self, $role) {
+  return exists $self->_roles->{$role};
+}
+=method get_role($role)
+
+Fetch the defined role value.
+
+@PARAMS: $role
+
+=cut
+sub get_role($self, $role) {
+  return $self->_roles->{$role};
+}
+
+=method add_role(%params)
+
+Added a new role to the object. 
+
+@PARAMS: %params
+
+  (
+    role => listref,
+  )
+
+=cut
+sub add_role($self, $role, $groups) {
+  push $self->_set__roles->{$role}->@*, $groups;
+}
+
+=method roles()
+
+Returns all the defined roles.
+
+=cut
+sub roles($self) {
+  return keys $self->_roles->%*;
 }
 
 =method search(%params)

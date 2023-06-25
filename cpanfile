@@ -9,4 +9,5 @@ requires 'String::Random';
 requires 'Syntax::Keyword::Try';
 requires 'Test::Class';
 requires 'Test::More';
+requires 'Type::Tiny';
 requires 'User::pwent';

@@ -13,6 +13,8 @@ package Net::LDAP::Simple::User;
 =cut
 
 use Moo;
+use Types::Standard qw(Str InstanceOf);
+use namespace::autoclean;
 
 use Modern::Perl '2015';
 use experimental qw(signatures);
@@ -56,34 +58,34 @@ Returns the value of the `sAMAccountName` field.
 
 has ldap_entry => (
   is       => 'ro',
-  isa      => 'Net::LDAP::Entry',
+  isa      => InstanceOf['Net::LDAP::Entry'],
   required => 1,
 );
 
 has firstname => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_firstname',
 );
 
 has lastname => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_lastname',
 );
 
 has email => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_email',
 );
 
 has username => (
   is      => 'ro',
-  isa     => 'Str',
+  isa     => Str,
   lazy    => 1,
   builder => '_build_username'
 );
