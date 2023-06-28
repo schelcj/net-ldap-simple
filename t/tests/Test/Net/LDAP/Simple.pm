@@ -3,11 +3,12 @@ package Test::Net::LDAP::Simple;
 use base 'Test::Class';
 
 use Const::Fast;
+use Data::Dumper;
 use FindBin;
 use User::pwent;
 use String::Random qw(random_string);
-
 use Test::More;
+use Test::Most;
 
 use Net::LDAP::Simple;
 
@@ -21,14 +22,63 @@ BEGIN {
 
 const my $TRUE  => 1;
 const my $FALSE => 0;
+const my %FIXTURE_ROLES => (
+  foo_editors => [qw(FOOAccess editors)],
+  hr          => ['HR'],
+);
+const my %FIXTURE_USERS => (
+  foo_editors => [qw(schelcj)],
+  hr          => [qw(bob alice)],
+);
 
-sub binddn  {return $ENV{LDAP_BINDDN};}
-sub bindpw  {return $ENV{LDAP_BINDPW};}
-sub host    {return $ENV{LDAP_HOST};}
+
+sub binddn  {return $ENV{LDAP_BINDDN} // 'foo';}
+sub bindpw  {return $ENV{LDAP_BINDPW} // '12345';}
+sub host    {return $ENV{LDAP_HOST}   // 'localhost';}
 sub passwd  {return $ENV{LDAP_PASSWORD};}
 sub user    {return $ENV{USER};}
 sub class   {return 'Net::LDAP::Simple';}
 sub fixture {return "$FindBin::Bin/../t/fixtures/config.pl"}
+
+sub setup : Test(no_plan) {
+  my $test = shift;
+  my $ldap = $test->class->new(
+    binddn => $test->binddn,
+    bindpw => $test->bindpw,
+    host   => $test->host,
+  );
+
+  isa_ok($ldap, $test->class);
+
+  $test->{ldap} = $ldap;
+}
+
+sub test_roles : Test(no_plan) {
+  my $test    = shift;
+  my $ldap    = $test->{ldap};
+  my $fixture = $test->{fixture};
+
+  can_ok($ldap, (qw(has_role add_role)));
+
+  for (keys %FIXTURE_ROLES) {
+    ok($ldap->add_role($_ => $FIXTURE_ROLES{$_}), "added $_ role");
+  }
+
+  ok($ldap->has_role('hr'), 'HR role exists');
+  ok($ldap->has_role('foo_editors'), 'Editors role exists');
+}
+
+sub test_search : Test(no_plan) {
+  ok(1);
+}
+
+sub test_conn : Test(no_plan) {
+  ok(1);
+}
+
+1;
+
+__END__
 
 sub startup : Test(startup => 3) {
   my $test = shift;
