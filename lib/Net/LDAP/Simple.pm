@@ -240,7 +240,7 @@ sub _build_conn($self) {
 }
 
 sub _build__role_map($self) {
-  return {map {$_ => $self->get_role($_)->[-1]} $self->roles};
+  return {map {$_ => $self->_roles->{$_}->[-1]} keys $self->_roles->%*};
 }
 
 sub _is_conn_reset ($self, %params) {
@@ -272,7 +272,7 @@ sub _role_filter ($self, $cn) {
 sub _role_search_ou ($self, $role) {
   return unless $self->has_role($role);
 
-  my @role_search_path = reverse @{$self->get_role($role)};
+  my @role_search_path = reverse @{$self->_roles->{$role}};
   my $search_ou        = 'CN=' . shift @role_search_path;
 
   if (@role_search_path) {
@@ -328,16 +328,6 @@ Has the role been defined. Returns true or false.
 sub has_role($self, $role) {
   return exists $self->_roles->{$role};
 }
-=method get_role($role)
-
-Fetch the defined role value.
-
-@PARAMS: $role
-
-=cut
-sub get_role($self, $role) {
-  return $self->_roles->{$role};
-}
 
 =method add_role(%params)
 
@@ -351,16 +341,7 @@ Added a new role to the object.
 
 =cut
 sub add_role($self, $role, $groups) {
-  push $self->_set__roles->{$role}->@*, $groups;
-}
-
-=method roles()
-
-Returns all the defined roles.
-
-=cut
-sub roles($self) {
-  return keys $self->_roles->%*;
+  push $self->_roles->{$role}->@*, $groups->@*;
 }
 
 =method search(%params)
