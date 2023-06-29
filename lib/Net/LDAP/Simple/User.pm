@@ -31,7 +31,7 @@ Instantiate a new Net::LDAP::Simple::User object.
 
 =over 2
 
-=item B<ldap_entry>
+=item B<entry>
 
     An existing Net::LDAP::Entry object.
     Required
@@ -56,7 +56,7 @@ Returns the value of the `sAMAccountName` field.
 
 =cut
 
-has ldap_entry => (
+has entry => (
   is       => 'ro',
   isa      => InstanceOf['Net::LDAP::Entry'],
   required => 1,
@@ -91,19 +91,19 @@ has username => (
 );
 
 sub _build_firstname($self) {
-  return $self->ldap_entry->get_value('givenName');
+  return $self->entry->get_value('givenName');
 }
 
 sub _build_lastname($self) {
-  return $self->ldap_entry->get_value('sn');
+  return $self->entry->get_value('sn');
 }
 
 sub _build_email($self) {
-  return $self->ldap_entry->get_value('mail');
+  return $self->entry->get_value('mail');
 }
 
 sub _build_username($self) {
-  return $self->ldap_entry->get_value('sAMAccountName');
+  return $self->entry->get_value('sAMAccountName');
 }
 
 1;

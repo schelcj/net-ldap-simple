@@ -53,7 +53,7 @@ sub setup : Test(no_plan) {
   $test->{ldap} = $ldap;
 }
 
-sub test_roles : Test(no_plan) {
+sub test_roles : Test(5) {
   my $test    = shift;
   my $ldap    = $test->{ldap};
   my $fixture = $test->{fixture};
