@@ -1,5 +1,7 @@
 # Net::LDAP::Simple
 
+_NOTE: name is a placeholder_
+
 ## SYNOPSIS
 
     my $ldap = Net::LDAP::Simple->new();
