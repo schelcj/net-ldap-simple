@@ -129,7 +129,7 @@ Defaults loaded from a config packaged with this module.
 =cut
 has '_roles' => (
   is      => 'rwp',
-  isa     => HashRef[ArrayRef],
+  isa     => HashRef [ArrayRef],
   default => sub {{}},
 );
 
@@ -202,7 +202,7 @@ has 'role_field' => (
 
 has 'conn' => (
   is      => 'ro',
-  isa     => InstanceOf['Net::LDAP'],
+  isa     => InstanceOf ['Net::LDAP'],
   lazy    => 1,
   builder => '_build_conn',
   clearer => 'clear_conn',
@@ -212,34 +212,34 @@ sub _build__file {
   return dist_file('Net-LDAP-Simple', 'ldap.conf');
 }
 
-sub _build__conf($self) {
+sub _build__conf ($self) {
   do $self->_file;
 }
 
-sub _build_user_basedn($self) {
+sub _build_user_basedn ($self) {
   return $self->_conf->{user_basedn};
 }
 
-sub _build_user_scope($self) {
+sub _build_user_scope ($self) {
   return $self->_conf->{user_scope};
 }
 
-sub _build_role_scope($self) {
+sub _build_role_scope ($self) {
   return $self->_conf->{role_scope};
 }
 
-sub _build_role_field($self) {
+sub _build_role_field ($self) {
   return $self->_conf->{role_field};
 }
 
-sub _build_conn($self) {
+sub _build_conn ($self) {
   return $self->_bind(
     binddn => $self->binddn,
     bindpw => $self->bindpw,
   );
 }
 
-sub _build__role_map($self) {
+sub _build__role_map ($self) {
   return {map {$_ => $self->_roles->{$_}->[-1]} keys $self->_roles->%*};
 }
 
@@ -273,7 +273,7 @@ sub _role_search_ou ($self, $role) {
   return unless $self->has_role($role);
 
   my @role_search_path = reverse @{$self->_roles->{$role}};
-  my $search_ou        = 'CN=' . shift @role_search_path;
+  my $search_ou        = 'OU=' . shift @role_search_path; # TODO: [07/16/2023 schelcj] - `OU=` needs to be configurable
 
   if (@role_search_path) {
     $search_ou .= $COMMA . join($COMMA, map {"OU=$_"} @role_search_path);    # TODO - clean this up
@@ -325,7 +325,7 @@ Has the role been defined. Returns true or false.
 @PARAMS: $role
 
 =cut
-sub has_role($self, $role) {
+sub has_role ($self, $role) {
   return exists $self->_roles->{$role};
 }
 
@@ -340,7 +340,7 @@ Added a new role to the object.
   )
 
 =cut
-sub add_role($self, $role, $groups) {
+sub add_role ($self, $role, $groups) {
   push $self->_roles->{$role}->@*, $groups->@*;
 }
 
@@ -364,7 +364,8 @@ sub search ($self, %params) {
 SEARCH: {
     my $search = $self->conn->search(%params);
 
-    if ($search->is_error) {
+    # TODO: [07/15/2023 schelcj] - what to do about 'no such object'?
+    if ($search->is_error and $search->code != 32) {
       if ($self->_is_conn_reset(error => $search->error)) {
         $self->clear_conn;
         redo SEARCH;
@@ -383,7 +384,7 @@ SEARCH: {
 Wrapper for Net::LDAP::unbind() to disconnect the ldap session.
 
 =cut
-sub unbind($self) {
+sub unbind ($self) {
   return $self->conn->unbind;
 }
 
@@ -461,18 +462,19 @@ sub is_role ($self, %params) {
   return $FALSE unless $self->has_role($params{role});
 
   my $user_entry = $self->lookup_user(%params);
+
   return $FALSE unless $user_entry;
 
   my $search = $self->search(
     base   => $self->_role_basedn($params{role}),
-    filter => $self->_role_filter($user_entry->get_value('cn')),
+    filter => $self->_role_filter($user_entry->get_value('uid')), # TODO: [07/15/2023 schelcj] - make configurable
     scope  => $self->role_scope,
     attrs  => [$self->role_field],
   );
 
   return $FALSE unless $search->count;
 
-  my %user_roles = map {$_->get_value($self->role_field) => 1} $search->entries;
+  my %user_roles = map {lc $_->get_value($self->role_field) => 1} $search->entries;
 
   return $TRUE if exists $user_roles{$self->_role_ou($params{role})};
   return $FALSE;
@@ -491,7 +493,8 @@ Return undef on lookup failure.
 sub get_user ($self, %params) {
   return unless $params{user};
   my $entry = $self->lookup_user(%params);
-  return Net::LDAP::Simple::User->new(ldap_entry => $entry);
+  return unless $entry;
+  return Net::LDAP::Simple::User->new(entry => $entry);
 }
 
 1;
