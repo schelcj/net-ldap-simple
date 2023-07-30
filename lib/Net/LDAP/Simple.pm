@@ -200,6 +200,13 @@ has 'role_field' => (
   builder => '_build_role_field',
 );
 
+has 'role_dn' => (
+  is      => 'ro',
+  isa     => Str,
+  lazy    => 1,
+  builder => '_build_role_dn',
+);
+
 has 'conn' => (
   is      => 'ro',
   isa     => InstanceOf ['Net::LDAP'],
@@ -230,6 +237,10 @@ sub _build_role_scope ($self) {
 
 sub _build_role_field ($self) {
   return $self->_conf->{role_field};
+}
+
+sub _build_role_dn ($self) {
+  return $self->_conf->{role_dn};
 }
 
 sub _build_conn ($self) {
@@ -273,10 +284,10 @@ sub _role_search_ou ($self, $role) {
   return unless $self->has_role($role);
 
   my @role_search_path = reverse @{$self->_roles->{$role}};
-  my $search_ou        = 'OU=' . shift @role_search_path; # TODO: [07/16/2023 schelcj] - `OU=` needs to be configurable
+  my $search_ou        = sprintf '%s=%s', $self->role_dn, shift @role_search_path;
 
   if (@role_search_path) {
-    $search_ou .= $COMMA . join($COMMA, map {"OU=$_"} @role_search_path);    # TODO - clean this up
+    $search_ou .= $COMMA . join($COMMA, map {"OU=$_"} @role_search_path);
   }
 
   return $search_ou;
